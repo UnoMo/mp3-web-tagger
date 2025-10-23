@@ -1,0 +1,43 @@
+# --------------------------------------------------
+# Python ignores
+# --------------------------------------------------
+
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Distribution and packaging
+dist/
+build/
+*.egg-info/
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs and debug files
+*.log
+.DS_Store
+
+# --------------------------------------------------
+# Flask ignores
+# --------------------------------------------------
+
+# Local configuration and sqlite database
+instance/
+
+# --------------------------------------------------
+# IDE and editor ignores
+# --------------------------------------------------
+
+# Visual Studio Code
+.vscode/
+
+# PyCharm
+.idea/

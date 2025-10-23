@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Upload MP3</h2>
+  <form action="" method="post" enctype="multipart/form-data">
+    <label>Select .mp3 file</label>
+    <input type="file" name="file" accept=".mp3" required>
+    <div class="actions" style="margin-top:1rem">
+      <button class="btn primary" type="submit">Upload</button>
+    </div>
+  </form>
+  <p class="muted">Max 50MB. File is stored under <code>instance/uploads</code>.</p>
+</div>
+{% endblock %}

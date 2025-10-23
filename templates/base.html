@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MP3 Tagger</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;line-height:1.5}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+    .card{border:1px solid #ddd;border-radius:12px;padding:1rem;margin-bottom:1rem}
+    form.inline{display:inline}
+    label{display:block;margin:.4rem 0 .2rem}
+    input[type=text], textarea{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    img.cover{max-width:100%;height:auto;display:block;border-radius:8px;border:1px solid #ccc}
+    .flash{padding:.6rem .8rem;border-radius:8px;margin:.5rem 0}
+    .flash.ok{background:#e8f7ed;border:1px solid #b6e2c1}
+    .flash.error{background:#fde8ea;border:1px solid #f3b4bc}
+    .actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .btn{display:inline-block;padding:.5rem .8rem;border:1px solid #999;border-radius:8px;background:#f6f6f6;text-decoration:none;color:#222}
+    .btn.primary{background:#004f80;color:#fff;border-color:#003955}
+    .muted{color:#666;font-size:.9rem}
+  </style>
+</head>
+<body>
+<header>
+  <h1>MP3 Tag Editor</h1>
+  <a class="btn" href="{{ url_for('index') }}">Upload another</a>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for cat, msg in messages %}
+      <div class="flash {{cat}}">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="content">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>
