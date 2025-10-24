@@ -3,6 +3,7 @@ import os
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, Any, Optional
+from mutagen import MutagenError
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -11,7 +12,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 from mutagen.id3 import (
-    ID3, ID3NoHeaderError, ID3v2VersionError,
+    ID3, ID3NoHeaderError,
     TIT2, TPE1, TPE2, TALB, TCOM, TCON, TDRC, TYER, TRCK, TPOS,
     COMM, USLT, APIC
 )
@@ -206,7 +207,7 @@ def create_app():
 
         try:
             save_id3(file_path, tags)
-        except ID3v2VersionError as e:
+        except MutagenError as e:
             flash(f"ID3 error: {e}", "error")
         else:
             flash("Tags saved.", "ok")
