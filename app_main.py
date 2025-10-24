@@ -3,7 +3,6 @@ import os
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, Any, Optional
-from mutagen import MutagenError
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -16,7 +15,8 @@ from mutagen.id3 import (
     TIT2, TPE1, TPE2, TALB, TCOM, TCON, TDRC, TYER, TRCK, TPOS,
     COMM, USLT, APIC
 )
-from mutagen.mp3 import MP3
+from mutagen import MutagenError
+# from mutagen.mp3 import MP3
 
 # ---------------- Config ----------------
 
