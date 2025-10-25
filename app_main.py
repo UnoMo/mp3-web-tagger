@@ -176,6 +176,7 @@ def create_app():
         for p in sorted(root.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
             if not p.is_file():
                 continue
+            # only list mp3 files; remove this check if you want to see *everything*
             if p.suffix.lower() != ".mp3":
                 continue
             st = p.stat()
@@ -183,8 +184,9 @@ def create_app():
                 "name": p.name,
                 "size_human": human_size(st.st_size),
                 "mtime_human": datetime.datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M"),
+            })
+        return items
 
-            return items
 
     # --------------- Routes ---------------
 
