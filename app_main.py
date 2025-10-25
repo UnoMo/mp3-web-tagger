@@ -3,7 +3,8 @@ import os
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, Any, Optional
-from datetime import datetime
+import datetime
+
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -175,17 +176,15 @@ def create_app():
         for p in sorted(root.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
             if not p.is_file():
                 continue
-            # only show mp3, but you *can* drop this filter if you want covers etc
             if p.suffix.lower() != ".mp3":
                 continue
             st = p.stat()
             items.append({
                 "name": p.name,
                 "size_human": human_size(st.st_size),
-                "mtime_human": datetime.datetime(st.st_mtime).strftime("%Y-%m-%d %H:%M"),
-            })
-        return items
+                "mtime_human": datetime.datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M"),
 
+            return items
 
     # --------------- Routes ---------------
 
