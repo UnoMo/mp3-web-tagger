@@ -8,6 +8,8 @@ from flask import (
     Flask, render_template, request, redirect, url_for,
     flash, send_file, abort
 )
+from flask import send_from_directory
+
 from werkzeug.utils import secure_filename
 
 from mutagen.id3 import (
@@ -280,6 +282,14 @@ def create_app():
                     )
         flash("No cover image found to download.", "error")
         return redirect(url_for("edit", filename=filename))
+    
+    @app.route("/download/<path:filename>")
+    def download_updated(filename):
+        return send_from_directory(
+            app.config["UPLOAD_FOLDER"],
+            filename,
+            as_attachment=True
+        )
 
     return app
 
