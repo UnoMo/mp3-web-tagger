@@ -9,7 +9,7 @@ from flask import (
     Flask, render_template, request, redirect, url_for,
     flash, send_file, abort
 )
-from flask import send_from_directory
+from flask import send_from_directory, send_file
 
 from werkzeug.utils import secure_filename
 
@@ -156,6 +156,37 @@ def create_app():
             tags.add(k)
         return removed
 
+    def human_size(num_bytes: int) -> str:
+        # simple readable size, e.g. 3.2 MB
+        step = 1024.0
+        for unit in ["bytes","KB","MB","GB","TB"]:
+            if num_bytes < step or unit == "TB":
+                if unit == "bytes":
+                    return f"{num_bytes} {unit}"
+                else:
+                    return f"{num_bytes/step:.1f} {unit}"
+            num_bytes /= step
+
+    def list_uploaded_files(upload_folder: str):
+        items = []
+        root = Path(upload_folder)
+        if not root.exists():
+            return items
+        for p in sorted(root.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
+            if not p.is_file():
+                continue
+            # only show mp3, but you *can* drop this filter if you want covers etc
+            if p.suffix.lower() != ".mp3":
+                continue
+            st = p.stat()
+            items.append({
+                "name": p.name,
+                "size_human": human_size(st.st_size),
+                "mtime_human": datetime.datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M"),
+            })
+        return items
+
+
     # --------------- Routes ---------------
 
     @app.route("/", methods=["GET", "POST"])
@@ -299,6 +330,27 @@ def create_app():
     @app.get("/_health")
     def health():
         return "ok", 200
+
+
+    @app.get("/explore")
+    def explore():
+        files = list_uploaded_files(app.config["UPLOAD_FOLDER"])
+        return render_template("explore.html", files=files)
+    
+    @app.post("/delete/<path:filename>")
+    def delete_file(filename):
+        file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
+        if not file_path.exists():
+            flash("File not found.", "error")
+            return redirect(url_for("explore"))
+
+        try:
+            file_path.unlink()
+            flash(f"Deleted {filename}", "ok")
+        except Exception as e:
+            flash(f"Could not delete {filename}: {e}", "error")
+
+        return redirect(url_for("explore"))
 
 
     return app
