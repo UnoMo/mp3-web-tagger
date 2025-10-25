@@ -3,6 +3,7 @@ import os
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, Any, Optional
+from datetime import datetime
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -170,8 +171,11 @@ def create_app():
                 return redirect(url_for("index"))
 
             fname = secure_filename(f.filename)
+            stem = Path(fname).stem
+            ext = Path(fname).suffix.lower()
+            unique = datetime.now().strftime("%Y%m%d-%H%M%S")
+            fname = f"{stem}-{unique}{ext}"
             dest = Path(app.config["UPLOAD_FOLDER"]) / fname
-            # overwrite for simplicity; you can also generate unique name
             f.save(dest)
             flash("File uploaded.", "ok")
             return redirect(url_for("edit", filename=fname))
@@ -290,6 +294,12 @@ def create_app():
             filename,
             as_attachment=True
         )
+    
+    # simple health check
+    @app.get("/_health")
+    def health():
+        return "ok", 200
+
 
     return app
 
