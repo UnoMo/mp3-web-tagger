@@ -159,15 +159,21 @@ def create_app():
         return removed
 
     def human_size(num_bytes: int) -> str:
-        # simple readable size, e.g. 3.2 MB
-        step = 1024.0
-        for unit in ["bytes","KB","MB","GB","TB"]:
-            if num_bytes < step or unit == "TB":
-                if unit == "bytes":
-                    return f"{num_bytes} {unit}"
-                else:
-                    return f"{num_bytes/step:.1f} {unit}"
-            num_bytes /= step
+        # Always work in float for division, but only after checking thresholds.
+        if num_bytes < 1024:
+            return f"{num_bytes} bytes"
+        kb = num_bytes / 1024.0
+        if kb < 1024:
+            return f"{kb:.1f} KB"
+        mb = kb / 1024.0
+        if mb < 1024:
+            return f"{mb:.1f} MB"
+        gb = mb / 1024.0
+        if gb < 1024:
+            return f"{gb:.2f} GB"
+        tb = gb / 1024.0
+        return f"{tb:.2f} TB"
+
 
     def list_uploaded_files(upload_folder: str):
         items = []
