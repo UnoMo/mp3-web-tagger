@@ -202,11 +202,16 @@ def create_app():
             # only list mp3 files; remove this check if you want to see *everything*
             if p.suffix.lower() != ".mp3":
                 continue
+
             st = p.stat()
+            ta = safe_get_title_artist(p)
+
             items.append({
                 "name": p.name,
                 "size_human": human_size(st.st_size),
                 "mtime_human": datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M"),
+                "title": ta["title"],
+                "artist": ta["artist"],
             })
         return items
 
@@ -373,6 +378,35 @@ def create_app():
             flash(f"Deleted {filename}", "ok")
         except Exception as e:
             flash(f"Could not delete {filename}: {e}", "error")
+
+        return redirect(url_for("explore"))
+
+    @app.post("/delete-bulk")
+    def delete_bulk():
+        # "files" will be an array of checkbox values
+        filenames = request.form.getlist("files")
+        if not filenames:
+            flash("No files selected.", "error")
+            return redirect(url_for("explore"))
+
+        deleted = []
+        failed = []
+
+        for filename in filenames:
+            file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
+            try:
+                if file_path.exists() and file_path.is_file():
+                    file_path.unlink()
+                    deleted.append(filename)
+                else:
+                    failed.append(filename)
+            except Exception as e:
+                failed.append(f"{filename} ({e})")
+
+        if deleted:
+            flash(f"Deleted {len(deleted)} file(s).", "ok")
+        if failed:
+            flash(f"Could not delete: {', '.join(failed)}", "error")
 
         return redirect(url_for("explore"))
 

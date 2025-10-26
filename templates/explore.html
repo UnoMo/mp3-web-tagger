@@ -3,48 +3,81 @@
 
 <div class="card">
   <h2>Explore uploaded MP3s</h2>
+
   {% if files %}
-    <p class="muted">Files live in <code>instance/uploads</code>. You can download or delete them.</p>
+    <p class="muted">
+      Files are stored in <code>instance/uploads</code>.
+      You can download, edit tags, or delete them.
+    </p>
 
-    <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
-      <thead>
-        <tr style="text-align:left;border-bottom:1px solid #ccc;">
-          <th style="padding:.5rem;">Filename</th>
-          <th style="padding:.5rem;">Size</th>
-          <th style="padding:.5rem;">Modified</th>
-          <th style="padding:.5rem;">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for f in files %}
-        <tr style="border-bottom:1px solid #eee;">
-          <td style="padding:.5rem;word-break:break-all;">{{ f.name }}</td>
-          <td style="padding:.5rem;white-space:nowrap;">{{ f.size_human }}</td>
-          <td style="padding:.5rem;white-space:nowrap;">{{ f.mtime_human }}</td>
-          <td style="padding:.5rem;">
-            <div class="actions">
-              <a class="btn"
-                 href="{{ url_for('download_updated', filename=f.name) }}">
-                 Download
-              </a>
+    <form action="{{ url_for('delete_bulk') }}" method="post" onsubmit="return confirm('Delete selected files? This cannot be undone.')">
+      <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+        <thead>
+          <tr style="text-align:left;border-bottom:1px solid #ccc;">
+            <th style="padding:.5rem;">
+              <!-- master checkbox -->
+              <input type="checkbox" onclick="for (const cb of document.querySelectorAll('.filecheck')) { cb.checked = this.checked; }">
+            </th>
+            <th style="padding:.5rem;">Filename</th>
+            <th style="padding:.5rem;">Title / Artist</th>
+            <th style="padding:.5rem;">Size</th>
+            <th style="padding:.5rem;">Modified</th>
+            <th style="padding:.5rem;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for f in files %}
+          <tr style="border-bottom:1px solid #eee;vertical-align:top;">
+            <td style="padding:.5rem;white-space:nowrap;">
+              <input class="filecheck" type="checkbox" name="files" value="{{ f.name }}">
+            </td>
 
-              <form class="inline" action="{{ url_for('delete_file', filename=f.name) }}" method="post"
-                    onsubmit="return confirm('Delete {{ f.name }}? This cannot be undone.')">
-                <button class="btn" type="submit" style="border-color:#c00;color:#c00;">
-                  Delete
-                </button>
-              </form>
+            <td style="padding:.5rem;word-break:break-all;">
+              {{ f.name }}
+            </td>
 
-              <a class="btn"
-                 href="{{ url_for('edit', filename=f.name) }}">
-                 Edit tags
-              </a>
-            </div>
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+            <td style="padding:.5rem;">
+              {% if f.title or f.artist %}
+                <div><strong>{{ f.title or '—' }}</strong></div>
+                <div class="muted">{{ f.artist or '' }}</div>
+              {% else %}
+                <span class="muted">No tags</span>
+              {% endif %}
+            </td>
+
+            <td style="padding:.5rem;white-space:nowrap;">
+              {{ f.size_human }}
+            </td>
+
+            <td style="padding:.5rem;white-space:nowrap;">
+              {{ f.mtime_human }}
+            </td>
+
+            <td style="padding:.5rem;">
+              <div class="actions">
+                <a class="btn" href="{{ url_for('download_updated', filename=f.name) }}">Download</a>
+
+                <form class="inline" action="{{ url_for('delete_file', filename=f.name) }}" method="post"
+                      onsubmit="return confirm('Delete {{ f.name }}? This cannot be undone.')">
+                  <button class="btn" type="submit" style="border-color:#c00;color:#c00;">
+                    Delete
+                  </button>
+                </form>
+
+                <a class="btn" href="{{ url_for('edit', filename=f.name) }}">Edit tags</a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="actions" style="margin-top:1rem">
+        <button class="btn" type="submit" style="border-color:#c00;color:#c00;">
+          Delete selected
+        </button>
+      </div>
+    </form>
 
   {% else %}
     <p class="muted">No files uploaded yet.</p>
