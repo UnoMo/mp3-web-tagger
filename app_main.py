@@ -256,7 +256,43 @@ def create_app():
             })
 
         return items
+    
+    def get_sorted_mp3s(upload_folder: str):
+        """
+        Return a list of Path objects for .mp3 files in upload_folder,
+        sorted newest-first (same logic we used in list_uploaded_files()).
+        """
+        root = Path(upload_folder)
+        if not root.exists():
+            return []
+        files = []
+        for p in root.iterdir():
+            if p.is_file() and p.suffix.lower() == ".mp3":
+                files.append(p)
+        # sort by mtime desc (newest first)
+        files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+        return files
 
+
+    def get_neighbors(upload_folder: str, current_name: str):
+        """
+        Given the current filename, find the previous and next filenames
+        in the sorted list. Returns (prev_name, next_name) or (None, None).
+        'prev' means the one that appears just before current in the sort order
+        (i.e. more recent), 'next' means just after.
+        """
+        files = get_sorted_mp3s(upload_folder)
+        names = [p.name for p in files]
+
+        if current_name not in names:
+            return (None, None)
+
+        idx = names.index(current_name)
+
+        prev_name = names[idx - 1] if idx - 1 >= 0 else None
+        next_name = names[idx + 1] if idx + 1 < len(names) else None
+
+        return (prev_name, next_name)
 
 
     # --------------- Routes ---------------
@@ -291,17 +327,24 @@ def create_app():
         file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
         if not file_path.exists():
             abort(404)
+
         tags = load_id3(file_path)
         common = get_common(tags)
         cover_front = get_cover_b64(tags, "front")
         cover_back = get_cover_b64(tags, "back")
+
+        prev_name, next_name = get_neighbors(app.config["UPLOAD_FOLDER"], filename)
+
         return render_template(
             "edit.html",
             filename=filename,
             common=common,
             cover_front=cover_front,
-            cover_back=cover_back
+            cover_back=cover_back,
+            prev_name=prev_name,
+            next_name=next_name,
         )
+
 
     @app.post("/update/<path:filename>")
     @require_auth

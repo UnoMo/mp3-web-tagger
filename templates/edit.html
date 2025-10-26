@@ -2,34 +2,35 @@
 {% block content %}
 
 <div class="card">
-  <h2>Edit tags — {{ filename }}</h2>
-  <form action="{{ url_for('update', filename=filename) }}" method="post">
-    <div class="row">
-      <div>
-        <label>Title</label><input type="text" name="title" value="{{ common.title or '' }}">
-        <label>Artist</label><input type="text" name="artist" value="{{ common.artist or '' }}">
-        <label>Album</label><input type="text" name="album" value="{{ common.album or '' }}">
-        <label>Album Artist</label><input type="text" name="albumartist" value="{{ common.albumartist or '' }}">
-        <label>Composer</label><input type="text" name="composer" value="{{ common.composer or '' }}">
-      </div>
-      <div>
-        <label>Genre</label><input type="text" name="genre" value="{{ common.genre or '' }}">
-        <label>Date (YYYY or free text)</label><input type="text" name="date" value="{{ common.date or '' }}">
-        <label>Track (N or N/M)</label><input type="text" name="track" value="{{ common.track or '' }}">
-        <label>Disc (N or N/M)</label><input type="text" name="disc" value="{{ common.disc or '' }}">
-      </div>
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:.5rem;">
+    <div>
+      <h2 style="margin-top:0;">Edit tags — {{ filename }}</h2>
+      {% if common.title or common.artist %}
+        <div class="muted">
+          {% if common.title %}<strong>{{ common.title }}</strong>{% endif %}
+          {% if common.artist %} — {{ common.artist }}{% endif %}
+        </div>
+      {% endif %}
     </div>
-    <label>Comment</label>
-    <textarea name="comment" rows="2">{{ common.comment or '' }}</textarea>
-    <label>Lyrics</label>
-    <textarea name="lyrics" rows="5">{{ common.lyrics or '' }}</textarea>
 
-    <div class="actions" style="margin-top:1rem">
-      <button class="btn primary" type="submit">Save tags</button>
-      <a class="btn" href="{{ url_for('download_cover', filename=filename) }}">Download cover</a>
-      <a class="btn" href="{{ url_for('download_updated', filename=filename) }}">Download updated MP3</a>
+    <div class="actions" style="text-align:right;display:flex;flex-wrap:wrap;gap:.5rem;">
+      <a class="btn" href="{{ url_for('explore') }}">← Explore</a>
+
+      {% if prev_name %}
+        <a class="btn" href="{{ url_for('edit', filename=prev_name) }}">&laquo; Prev</a>
+      {% else %}
+        <span class="btn" style="opacity:.4;cursor:default;">&laquo; Prev</span>
+      {% endif %}
+
+      {% if next_name %}
+        <a class="btn" href="{{ url_for('edit', filename=next_name) }}">Next &raquo;</a>
+      {% else %}
+        <span class="btn" style="opacity:.4;cursor:default;">Next &raquo;</span>
+      {% endif %}
     </div>
-  </form>
+  </div>
+
+  <form action="{{ url_for('update', filename=filename) }}" method="post">
 </div>
 
 <div class="row">
