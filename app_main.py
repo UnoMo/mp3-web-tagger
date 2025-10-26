@@ -99,6 +99,22 @@ def create_app():
             "comment":     comment,
             "lyrics":      lyrics,
         }
+    
+    def safe_get_title_artist(file_path: Path) -> dict:
+        """
+        Return {'title': ..., 'artist': ...} for display in Explore.
+        Never throws; falls back to '' if unreadable.
+        """
+        try:
+            tags = load_id3(file_path)
+            meta = get_common(tags)
+            return {
+                "title": meta.get("title", "") or "",
+                "artist": meta.get("artist", "") or "",
+            }
+        except Exception:
+            return {"title": "", "artist": ""}
+
 
     def set_field(tags: ID3, field: str, value: str) -> None:
         f = field.lower()
