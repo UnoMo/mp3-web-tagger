@@ -2,16 +2,14 @@ import base64
 import os
 from io import BytesIO
 from pathlib import Path
+from functools import wraps
 from typing import Dict, Any, Optional
 from datetime import datetime
 
-
-
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    flash, send_file, abort
+    flash, send_file, send_from_directory, abort, Response
 )
-from flask import send_from_directory, send_file
 
 from werkzeug.utils import secure_filename
 
@@ -39,6 +37,34 @@ COVER_TYPE_MAP = {"front": 3, "back": 4}
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+
+    # --- Basic Auth setup ---
+    AUTH_USER = os.environ.get("APP_USER", "")
+    AUTH_PASS = os.environ.get("APP_PASS", "")
+
+    def check_auth(username, password):
+        return (username == AUTH_USER and password == AUTH_PASS)
+
+    def auth_failed_response():
+        # Triggers browser login dialog
+        return Response(
+            "Authentication required", 401,
+            {"WWW-Authenticate": 'Basic realm="MP3 Tagger"'}
+        )
+
+    def require_auth(view_fn):
+        @wraps(view_fn)
+        def wrapped(*args, **kwargs):
+            # If no creds configured, allow everything (so you don't lock yourself out by accident)
+            if AUTH_USER == "" and AUTH_PASS == "":
+                return view_fn(*args, **kwargs)
+
+            auth = request.authorization
+            if not auth or not check_auth(auth.username, auth.password):
+                return auth_failed_response()
+            return view_fn(*args, **kwargs)
+        return wrapped
+
     app.config.update(
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev-secret-change-me"),
         MAX_CONTENT_LENGTH=50 * 1024 * 1024,  # 50MB limit
@@ -219,6 +245,7 @@ def create_app():
     # --------------- Routes ---------------
 
     @app.route("/", methods=["GET", "POST"])
+    @require_auth
     def index():
         if request.method == "POST":
             f = request.files.get("file")
@@ -242,6 +269,7 @@ def create_app():
         return render_template("index.html")
 
     @app.route("/edit/<path:filename>", methods=["GET"])
+    @require_auth
     def edit(filename):
         file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
         if not file_path.exists():
@@ -259,6 +287,7 @@ def create_app():
         )
 
     @app.post("/update/<path:filename>")
+    @require_auth
     def update(filename):
         file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
         if not file_path.exists():
@@ -280,6 +309,7 @@ def create_app():
         return redirect(url_for("edit", filename=filename))
 
     @app.post("/cover/<path:filename>/add")
+    @require_auth
     def add_cover(filename):
         file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
         if not file_path.exists():
@@ -315,6 +345,7 @@ def create_app():
         return redirect(url_for("edit", filename=filename))
 
     @app.post("/cover/<path:filename>/remove")
+    @require_auth
     def remove_cover_route(filename):
         file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
         if not file_path.exists():
@@ -327,6 +358,7 @@ def create_app():
         return redirect(url_for("edit", filename=filename))
 
     @app.get("/cover/<path:filename>/download")
+    @require_auth
     def download_cover(filename):
         # Download the front cover by default
         file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
@@ -348,6 +380,7 @@ def create_app():
         return redirect(url_for("edit", filename=filename))
     
     @app.route("/download/<path:filename>")
+    @require_auth
     def download_updated(filename):
         return send_from_directory(
             app.config["UPLOAD_FOLDER"],
@@ -357,11 +390,13 @@ def create_app():
     
     # simple health check
     @app.get("/_health")
+    @require_auth
     def health():
         return "ok", 200
 
 
     @app.get("/explore")
+    @require_auth
     def explore():
         files = list_uploaded_files(app.config["UPLOAD_FOLDER"])
         return render_template("explore.html", files=files)
@@ -382,6 +417,7 @@ def create_app():
         return redirect(url_for("explore"))
 
     @app.post("/delete-bulk")
+    @require_auth
     def delete_bulk():
         # "files" will be an array of checkbox values
         filenames = request.form.getlist("files")
