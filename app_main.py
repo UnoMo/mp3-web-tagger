@@ -141,6 +141,19 @@ def create_app():
         except Exception:
             return {"title": "", "artist": ""}
 
+    def safe_get_front_cover_data_url(file_path: Path) -> str:
+        """
+        Return a base64 data URL for the front cover, or '' if none.
+        We don't resize here; just use browser CSS to keep it small.
+        """
+        try:
+            tags = load_id3(file_path)
+            cover = get_cover_b64(tags, "front")
+            if cover and "data_url" in cover:
+                return cover["data_url"]
+        except Exception:
+            pass
+        return ""
 
     def set_field(tags: ID3, field: str, value: str) -> None:
         f = field.lower()
@@ -222,15 +235,16 @@ def create_app():
         root = Path(upload_folder)
         if not root.exists():
             return items
+
         for p in sorted(root.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
             if not p.is_file():
                 continue
-            # only list mp3 files; remove this check if you want to see *everything*
             if p.suffix.lower() != ".mp3":
                 continue
 
             st = p.stat()
             ta = safe_get_title_artist(p)
+            thumb_url = safe_get_front_cover_data_url(p)
 
             items.append({
                 "name": p.name,
@@ -238,8 +252,11 @@ def create_app():
                 "mtime_human": datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M"),
                 "title": ta["title"],
                 "artist": ta["artist"],
+                "thumb": thumb_url,  # '' if no cover
             })
+
         return items
+
 
 
     # --------------- Routes ---------------
