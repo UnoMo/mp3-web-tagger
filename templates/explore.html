@@ -11,43 +11,43 @@
     </p>
 
     <form action="{{ url_for('delete_bulk') }}" method="post" onsubmit="return confirm('Delete selected files? This cannot be undone.')">
-      <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+      <table>
         <thead>
-          <tr style="text-align:left;border-bottom:1px solid #ccc;">
-            <th style="padding:.5rem;">
+          <tr>
+            <th>
               <input type="checkbox"
                      onclick="for (const cb of document.querySelectorAll('.filecheck')) { cb.checked = this.checked; }">
             </th>
-            <th style="padding:.5rem;">Cover</th>
-            <th style="padding:.5rem;">Filename</th>
-            <th style="padding:.5rem;">Title / Artist</th>
-            <th style="padding:.5rem;">Size</th>
-            <th style="padding:.5rem;">Modified</th>
-            <th style="padding:.5rem;">Actions</th>
+            <th>Cover</th>
+            <th>Filename</th>
+            <th>Title / Artist</th>
+            <th>Size</th>
+            <th>Modified</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
         {% for f in files %}
-          <tr style="border-bottom:1px solid #eee;vertical-align:top;">
-            <td style="padding:.5rem;white-space:nowrap;">
+          <tr>
+            <td>
               <input class="filecheck" type="checkbox" name="files" value="{{ f.name }}">
             </td>
 
-            <td style="padding:.5rem;width:70px;">
+            <td>
               {% if f.thumb %}
                 <img src="{{ f.thumb }}"
                      alt="cover"
-                     style="width:64px;height:auto;border:1px solid #ccc;border-radius:6px;display:block;">
+                     >
               {% else %}
                 <span class="muted">—</span>
               {% endif %}
             </td>
 
-            <td style="padding:.5rem;word-break:break-all;">
+            <td>
               {{ f.name }}
             </td>
 
-            <td style="padding:.5rem;">
+            <td>
               {% if f.title or f.artist %}
                 <div><strong>{{ f.title or '—' }}</strong></div>
                 <div class="muted">{{ f.artist or '' }}</div>
@@ -56,15 +56,15 @@
               {% endif %}
             </td>
 
-            <td style="padding:.5rem;white-space:nowrap;">
+            <td>
               {{ f.size_human }}
             </td>
 
-            <td style="padding:.5rem;white-space:nowrap;">
+            <td>
               {{ f.mtime_human }}
             </td>
 
-            <td style="padding:.5rem;">
+            <td>
               <div class="actions">
                 <a class="btn" href="{{ url_for('download_updated', filename=f.name) }}">Download</a>
 
@@ -72,7 +72,7 @@
                       action="{{ url_for('delete_file', filename=f.name) }}"
                       method="post"
                       onsubmit="return confirm('Delete {{ f.name }}? This cannot be undone.');">
-                  <button class="btn" type="submit" style="border-color:#c00;color:#c00;">
+                  <button class="btn" type="submit">
                     Delete
                   </button>
                 </form>
@@ -85,7 +85,7 @@
         </tbody>
       </table>
 
-      <div class="actions" style="margin-top:1rem">
+      <div class="actions">
         <button class="btn" type="submit" style="border-color:#c00;color:#c00;">
           Delete selected
         </button>

@@ -2,9 +2,9 @@
 {% block content %}
 
 <div class="card">
-  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:.5rem;">
+  <div>
     <div>
-      <h2 style="margin-top:0;">Edit tags — {{ filename }}</h2>
+      <h2>Edit tags — {{ filename }}</h2>
       {% if common.title or common.artist %}
         <div class="muted">
           {% if common.title %}<strong>{{ common.title }}</strong>{% endif %}
@@ -13,19 +13,19 @@
       {% endif %}
     </div>
 
-    <div class="actions" style="text-align:right;display:flex;flex-wrap:wrap;gap:.5rem;">
+    <div class="actions">
       <a class="btn" href="{{ url_for('explore') }}">← Explore</a>
 
       {% if prev_name %}
         <a class="btn" href="{{ url_for('edit', filename=prev_name) }}">&laquo; Prev</a>
       {% else %}
-        <span class="btn" style="opacity:.4;cursor:default;">&laquo; Prev</span>
+        <span class="btn">&laquo; Prev</span>
       {% endif %}
 
       {% if next_name %}
         <a class="btn" href="{{ url_for('edit', filename=next_name) }}">Next &raquo;</a>
       {% else %}
-        <span class="btn" style="opacity:.4;cursor:default;">Next &raquo;</span>
+        <span class="btn">Next &raquo;</span>
       {% endif %}
     </div>
   </div>
@@ -45,7 +45,7 @@
       <input type="hidden" name="kind" value="front">
       <label>Replace / Add (JPG/PNG/GIF/WEBP/BMP)</label>
       <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp">
-      <div class="actions" style="margin-top:.6rem">
+      <div class="actions">
         <button class="btn" type="submit">Update front cover</button>
       </div>
     </form>
@@ -66,7 +66,7 @@
       <input type="hidden" name="kind" value="back">
       <label>Replace / Add (JPG/PNG/GIF/WEBP/BMP)</label>
       <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp">
-      <div class="actions" style="margin-top:.6rem">
+      <div class="actions">
         <button class="btn" type="submit">Update back cover</button>
       </div>
     </form>

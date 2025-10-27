@@ -1,58 +1,95 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>MP3 Tagger</title>
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;line-height:1.5}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-    .card{border:1px solid #ddd;border-radius:12px;padding:1rem;margin-bottom:1rem}
-    form.inline{display:inline}
-    label{display:block;margin:.4rem 0 .2rem}
-    input[type=text], textarea{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-    img.cover{max-width:100%;height:auto;display:block;border-radius:8px;border:1px solid #ccc}
-    .flash{padding:.6rem .8rem;border-radius:8px;margin:.5rem 0}
-    .flash.ok{background:#e8f7ed;border:1px solid #b6e2c1}
-    .flash.error{background:#fde8ea;border:1px solid #f3b4bc}
-    .actions{display:flex;gap:.5rem;flex-wrap:wrap}
-    .btn{display:inline-block;padding:.5rem .8rem;border:1px solid #999;border-radius:8px;background:#f6f6f6;text-decoration:none;color:#222}
-    .btn.primary{background:#004f80;color:#fff;border-color:#003955}
-    .muted{color:#666;font-size:.9rem}
-  </style>
+  <title>MP3 Tag Editor</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+
+  <script>
+    // load saved theme before paint
+    (function() {
+      try {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
-<header>
-  <nav style="display:flex;flex-wrap:wrap;align-items:center;gap:1rem;width:100%;justify-content:space-between">
-    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
-      <div style="font-weight:600;font-size:1.1rem;">MP3 Tag Editor</div>
-      <a class="btn {% if request.endpoint in ['index','edit','update','add_cover','remove_cover_route','download_cover','download_updated'] %}primary{% endif %}"
-         href="{{ url_for('index') }}">
-         Edit
-      </a>
-      <a class="btn {% if request.endpoint in ['explore'] %}primary{% endif %}"
-         href="{{ url_for('explore') }}">
-         Explore
-      </a>
-    </div>
 
-    <div style="margin-left:auto;">
-      <!-- optional mini status / health / user later -->
-    </div>
-  </nav>
+<!-- Navbar -->
+<header class="navbar">
+  <div class="nav-left">
+    <a class="nav-brand" href="{{ url_for('index') }}">
+      <span class="nav-brand-logo">MP3</span>
+      <span>Tag Editor</span>
+    </a>
+
+    <nav class="nav-links">
+      <a class="nav-link {% if request.endpoint in ['index','edit','update','add_cover','remove_cover_route','download_cover','download_updated'] %}active{% endif %}"
+         href="{{ url_for('index') }}">
+        Edit
+      </a>
+
+      <a class="nav-link {% if request.endpoint in ['explore','delete_file','delete_bulk'] %}active{% endif %}"
+         href="{{ url_for('explore') }}">
+        Explore
+      </a>
+    </nav>
+  </div>
+
+  <div class="nav-right">
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggleBtn">
+      🌙
+    </button>
+  </div>
 </header>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for cat, msg in messages %}
-      <div class="flash {{cat}}">{{ msg }}</div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+<div class="wrapper">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{cat}}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
-<div class="content">
-  {% block content %}{% endblock %}
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
 </div>
+
+<script>
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  function applyTheme(mode) {
+    document.documentElement.setAttribute('data-theme', mode);
+    try { localStorage.setItem('theme', mode); } catch(e) {}
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+      btn.textContent = (mode === 'dark') ? '☀️' : '🌙';
+    }
+  }
+
+  function toggleTheme() {
+    applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+  }
+
+  // set correct icon on load
+  (function(){
+    const mode = currentTheme();
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+      btn.textContent = (mode === 'dark') ? '☀️' : '🌙';
+    }
+  })();
+</script>
+
 </body>
 </html>
