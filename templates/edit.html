@@ -78,34 +78,12 @@
     <label>Lyrics</label>
     <textarea name="lyrics" rows="5">{{ common.lyrics or '' }}</textarea>
 
-    <div class="actions" style="margin-top:1rem">
+    <div class="actions">
       <button class="btn primary" type="submit">Save tags</button>
       <a class="btn" href="{{ url_for('download_cover', filename=filename) }}">Download cover</a>
     </div>
   </form>
 </div>
-
-<div class="row">
-  <div class="card">
-    <h3>Front cover</h3>
-    {% if cover_front %}
-      <img class="cover" src="{{ cover_front.data_url }}" alt="Front cover">
-    {% else %}
-      <p class="muted">No front cover embedded.</p>
-    {% endif %}
-    <form action="{{ url_for('add_cover', filename=filename) }}" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="kind" value="front">
-      <label>Replace / Add (JPG/PNG/GIF/WEBP/BMP)</label>
-      <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp">
-      <div class="actions" style="margin-top:.6rem">
-        <button class="btn" type="submit">Update front cover</button>
-      </div>
-    </form>
-    <form class="inline" action="{{ url_for('remove_cover_route', filename=filename) }}" method="post">
-      <input type="hidden" name="kind" value="front">
-      <button class="btn" type="submit">Remove front</button>
-    </form>
-  </div>
 
   <div class="card">
     <h3>Back cover</h3>
