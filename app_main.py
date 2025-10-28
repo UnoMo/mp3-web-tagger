@@ -1,5 +1,6 @@
 import base64
 import os
+import io
 import zipfile
 from io import BytesIO
 from pathlib import Path
