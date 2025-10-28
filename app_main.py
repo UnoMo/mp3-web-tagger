@@ -1,5 +1,6 @@
 import base64
 import os
+import zipfile
 from io import BytesIO
 from pathlib import Path
 from functools import wraps
@@ -508,6 +509,40 @@ def create_app():
             flash(f"Could not delete: {', '.join(failed)}", "error")
 
         return redirect(url_for("explore"))
+    
+    @app.post("/download-bulk")
+    @require_auth
+    def download_bulk():
+        # Get all selected checkboxes named "files"
+        filenames = request.form.getlist("files")
+        if not filenames:
+            flash("No files selected.", "error")
+            return redirect(url_for("explore"))
+
+        # We'll build the zip in memory
+        mem_zip = io.BytesIO()
+        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for filename in filenames:
+                file_path = Path(app.config["UPLOAD_FOLDER"]) / filename
+                # only add real, readable files
+                if file_path.exists() and file_path.is_file():
+                    # arcname = filename inside the zip
+                    zf.write(file_path, arcname=filename)
+
+        mem_zip.seek(0)
+
+        # Build a nice zip filename, like export-2025-10-28_22-41.zip
+        from datetime import datetime
+        stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        zip_name = f"mp3-export-{stamp}.zip"
+
+        # return as attachment
+        return send_file(
+            mem_zip,
+            mimetype="application/zip",
+            as_attachment=True,
+            download_name=zip_name
+        )
     
     @app.context_processor
     def inject_globals():

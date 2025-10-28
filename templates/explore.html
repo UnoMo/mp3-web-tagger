@@ -10,7 +10,7 @@
       You can download, edit tags, or delete them.
     </p>
 
-    <form action="{{ url_for('delete_bulk') }}" method="post" onsubmit="return confirm('Delete selected files? This cannot be undone.')">
+    <form method="post">
       <table>
         <thead>
           <tr>
@@ -33,18 +33,17 @@
               <input class="filecheck" type="checkbox" name="files" value="{{ f.name }}">
             </td>
 
-            <td>
+            <td style="width:70px;">
               {% if f.thumb %}
                 <img src="{{ f.thumb }}"
-                    class="cover-thumb" 
-                    alt="cover"
-                    >
+                     alt="cover"
+                     class="cover-thumb">
               {% else %}
                 <span class="muted">—</span>
               {% endif %}
             </td>
 
-            <td>
+            <td style="word-break:break-all;">
               {{ f.name }}
             </td>
 
@@ -57,11 +56,11 @@
               {% endif %}
             </td>
 
-            <td>
+            <td style="white-space:nowrap;">
               {{ f.size_human }}
             </td>
 
-            <td>
+            <td style="white-space:nowrap;">
               {{ f.mtime_human }}
             </td>
 
@@ -73,7 +72,7 @@
                       action="{{ url_for('delete_file', filename=f.name) }}"
                       method="post"
                       onsubmit="return confirm('Delete {{ f.name }}? This cannot be undone.');">
-                  <button class="btn" type="submit">
+                  <button class="btn danger" type="submit">
                     Delete
                   </button>
                 </form>
@@ -86,8 +85,17 @@
         </tbody>
       </table>
 
-      <div class="actions">
-        <button class="btn" type="submit" style="border-color:#c00;color:#c00;">
+      <div class="actions" style="margin-top:1rem">
+        <button class="btn"
+                type="submit"
+                formaction="{{ url_for('download_bulk') }}">
+          Download selected
+        </button>
+
+        <button class="btn danger"
+                type="submit"
+                formaction="{{ url_for('delete_bulk') }}"
+                onclick="return confirm('Delete selected files? This cannot be undone.');">
           Delete selected
         </button>
       </div>
