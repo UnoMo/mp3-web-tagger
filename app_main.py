@@ -72,6 +72,9 @@ def create_app():
         SAVE_AS_V23=True,  # save as ID3v2.3 for max compatibility
         PREFERRED_URL_SCHEME="https",
     )
+    
+    # App metadata / version
+    app.config["APP_VERSION"] = os.environ.get("APP_VERSION", "v0.1-dev")
 
     # ensure folders
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
@@ -505,7 +508,12 @@ def create_app():
             flash(f"Could not delete: {', '.join(failed)}", "error")
 
         return redirect(url_for("explore"))
-
+    
+        @app.context_processor
+        def inject_globals():
+            return {
+                "APP_VERSION": app.config.get("APP_VERSION", "v0.1-dev")
+            }
 
     return app
 

@@ -280,3 +280,39 @@ td {
   border-radius:6px;
   display:block;
 }
+
+.version-pill {
+  background: var(--card-bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  font-size: .7rem;
+  line-height: 1;
+  padding: .4rem .5rem;
+  font-weight: 500;
+  min-width: 3rem;
+  text-align: center;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.app-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  row-gap: .5rem;
+  font-size: .8rem;
+}
+
