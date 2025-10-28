@@ -509,11 +509,11 @@ def create_app():
 
         return redirect(url_for("explore"))
     
-        @app.context_processor
-        def inject_globals():
-            return {
-                "APP_VERSION": app.config.get("APP_VERSION", "v0.1-dev")
-            }
+    @app.context_processor
+    def inject_globals():
+        return {
+            "APP_VERSION": app.config.get("APP_VERSION", "v0.1-dev")
+        }
 
     return app
 
